@@ -29,25 +29,23 @@ function SummariesInInbox() {
 }
 
 function EmailFetchInterval() {
-  return (
-    <div className="settings-block email-fetch-interval">
-      <div className="header-container">
-        <h2 className="header">Email Fetch Interval</h2>
-        <p className="metric">(seconds)</p>
-      </div>
-      <input
-        className="slider"
-        type="range"
-        min="0"
-        max="600"
-        step="5"
-        onInput={inputEvent =>
-          (inputEvent.target.nextSibling.textContent = `${inputEvent.target.value}`)
-        }
-      />
-      <p className="count-display"> </p>
-    </div>
-  );
+    return (
+        <div className="settings-block email-fetch-interval">
+            <div className="header-container">
+                <h2 className="header">Email Fetch Interval</h2>
+                <p className="metric">(seconds)</p>
+            </div>
+            <input
+                className="slider"
+                type="range"
+                min="0"
+                max="600"
+                step="5"
+                onInput={(inputEvent) => inputEvent.target.nextSibling.textContent = `${inputEvent.target.value}`}
+            />
+            <p className="count-display"> </p>
+        </div>
+    );
 }
 
 function Theme() {
