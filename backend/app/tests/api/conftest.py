@@ -4,18 +4,6 @@ from typing import Generator
 from unittest.mock import Mock, patch
 
 @pytest.fixture
-def mock_email_response():
-    """
-    Mock email data for testing email endpoints
-    """
-    return [{
-        "id": 1,
-        "from": "sender@example.com",
-        "subject": "Test Subject",
-        "body": "Test email body content"
-    }]
-
-@pytest.fixture
 def mock_fetch_emails(mock_email_response):
     """
     Mock the fetch_emails function from email_service
@@ -33,3 +21,12 @@ def mock_imap_client():
         client_instance = Mock()
         mock.return_value.__enter__.return_value = client_instance
         yield client_instance
+
+@pytest.fixture
+def mock_fetch_summary(mock_summary_response):
+    """
+    Mock the summarize_emails function from summarization service
+    """
+    with patch("app.services.summarization_service.summarize_emails") as mock:
+        mock.return_value = mock_summary_response
+        yield mock
