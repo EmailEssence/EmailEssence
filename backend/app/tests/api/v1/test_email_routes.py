@@ -3,6 +3,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from unittest.mock import patch
+from constants import TEST_EMAIL_DATA
+
 
 @pytest.mark.asyncio
 async def test_retrieve_emails_success(
@@ -13,12 +15,7 @@ async def test_retrieve_emails_success(
     Test successful email retrieval flow
     """
     # Arrange
-    mock_fetch_emails.return_value = [{
-        "id": 1,
-        "from_": "test@example.com",
-        "subject": "Test Subject",
-        "body": "Test content"
-    }]
+    mock_fetch_emails.return_value = TEST_EMAIL_DATA
 
     # Act
     response = test_client.get("/emails")
@@ -27,10 +24,17 @@ async def test_retrieve_emails_success(
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 1
-    assert data[0]["from"] == "test@example.com" 
+    assert "user_id" in data[0]
+    assert "email_id" in data[0]
+    assert data[0]["sender"] == "test@example.com" 
     assert "from_" not in data[0]
     assert "subject" in data[0]
     assert "body" in data[0]
+    assert "receipients" in data[0]
+    assert isinstance(data[0]["recipients"], list)
+    assert "received_at" in data[0]
+    assert "category" in data[0]
+    assert "is_read" in data[0]
     mock_fetch_emails.assert_called_once()
 
 @pytest.mark.asyncio
