@@ -1,4 +1,9 @@
 # tests/api/v1/constants.py
+import pytest
+from datetime import datetime, timezone
+
+from app.models import EmailSchema, SummarySchema
+
 """
 Test constants for API v1 testing
 """
@@ -8,22 +13,26 @@ SUMMARY_ENDPOINT = "/summaries"
 AUTH_ENDPOINT = "/auth"
 USER_ENDPOINT = "/user"
 
-TEST_EMAIL_DATA = [{
-        "user_id": "123",
-        "email_id": "abc-123",
-        "sender": "test@example.com",
-        "recipients": ["recipient1@example.com", "recipient2@example.com"],
-        "subject": "Test Subject",
-        "body": "Test content",
-        "received_at": "2000-01-01T12:00:00", #optional
-        "category": "work", #optional
-        "is_read": True #optional
-    }]
+# Test data fixtures
+@pytest.fixture
+def sample_email():
+    return EmailSchema(
+        user_id="test_user",
+        email_id="test_123",
+        sender="sender@test.com",
+        recipients=["recipient@test.com"],
+        subject="Test Email",
+        body="This is a test email body",
+        received_at=datetime.now(timezone.utc),
+        category="test",
+        is_read=False
+    )
 
-
-TEST_SUMMARY_DATA = [{
-        "email_id": "123",
-        "summary_text": "This is a test summary",
-        "keywords:": ["bing", "bong"],
-        "generated_at": "2000-01-01T12:00:00"
-    }]
+@pytest.fixture
+def sample_summary():
+    return SummarySchema(
+        email_id="test_123",
+        summary_text="Test email summary",
+        keywords=["test", "email"],
+        generated_at=datetime.now(timezone.utc)
+    )
