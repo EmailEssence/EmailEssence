@@ -3,7 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from unittest.mock import patch
-from .constants import TEST_EMAIL_DATA
+from app.tests.constants import sample_email
 
 
 @pytest.mark.asyncio
@@ -15,7 +15,7 @@ async def test_retrieve_emails_success(
     Test successful email retrieval flow
     """
     # Arrange
-    mock_fetch_emails.return_value = TEST_EMAIL_DATA
+    mock_fetch_emails.return_value = sample_email
 
     # Act
     response = test_client.get("/emails")

@@ -8,7 +8,7 @@ from typing import List
 from app.models import EmailSchema, SummarySchema
 from app.utils.config import Settings, SummarizerProvider
 from app.services.summarization import ProcessingStrategy
-from app.tests.api.v1.constants import sample_email, sample_summary
+from app.tests.constants import sample_email, sample_summary
 
 
 # Test Summarizer Factory
