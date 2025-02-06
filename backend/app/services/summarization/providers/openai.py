@@ -110,7 +110,7 @@ class OpenAIEmailSummarizer(AdaptiveSummarizer[EmailSchema]):
     def __init__(
         self,
         api_key: str,
-        model: str = "gpt-4-turbo-preview", # Redundant
+        model: str = "gpt-4o-mini", # Redundant
         batch_threshold: int = 10,
         max_batch_size: int = 50,
         timeout: float = 30.0
