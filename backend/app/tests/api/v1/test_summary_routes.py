@@ -8,6 +8,7 @@ from typing import List
 from app.models import EmailSchema, SummarySchema
 from app.utils.config import Settings, SummarizerProvider
 from app.services.summarization import ProcessingStrategy
+from app.tests.api.v1.constants import SUMMARY_ENDPOINT
 from app.tests.constants import sample_email, sample_summary
 
 
@@ -21,7 +22,7 @@ async def test_get_summarizer_openai_success(test_client: TestClient):
             openai_api_key="test_key"
         )
         
-        response = test_client.get("/summaries")
+        response = test_client.get(SUMMARY_ENDPOINT)
         assert response.status_code == 200
 
 # TODO Tests for other providers
@@ -35,7 +36,7 @@ async def test_get_summarizer_missing_api_key(test_client: TestClient):
             openai_api_key=None
         )
         
-        response = test_client.get("/summaries")
+        response = test_client.get(SUMMARY_ENDPOINT)
         assert response.status_code == 500
         assert "OpenAI API key not configured" in response.json()["detail"]
 
@@ -48,7 +49,7 @@ async def test_summarize_emails_empty_list(
     """Test behavior when no emails are available"""
     mock_fetch_emails.return_value = []
     
-    response = test_client.get("/summaries")
+    response = test_client.get(SUMMARY_ENDPOINT)
     assert response.status_code == 200
     assert response.json() == []
 
@@ -66,7 +67,7 @@ async def test_summarize_emails_success(
     with patch("app.services.summarization.OpenAIEmailSummarizer.summarize") as mock_summarize:
         mock_summarize.return_value = [sample_summary]
         
-        response = test_client.get("/summaries")
+        response = test_client.get(SUMMARY_ENDPOINT)
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1
@@ -85,7 +86,7 @@ async def test_summarize_emails_error(
     """Test error handling in summary generation"""
     mock_fetch_emails.side_effect = Exception("Test error")
     
-    response = test_client.get("/summaries")
+    response = test_client.get(SUMMARY_ENDPOINT)
     assert response.status_code == 500
     assert "Failed to generate email summaries" in response.json()["detail"]
 
@@ -101,7 +102,7 @@ async def test_summarize_single_email_success(
         mock_summarize.return_value = [sample_summary]
         
         response = test_client.post(
-            "/summaries/summarize",
+            SUMMARY_ENDPOINT + "/summarize",
             json=sample_email.dict()
         )
         assert response.status_code == 200
@@ -122,7 +123,7 @@ async def test_summarize_single_email_error(
         mock_summarize.side_effect = Exception("Test error")
         
         response = test_client.post(
-            "/summaries/summarize",
+            SUMMARY_ENDPOINT + "/summarize",
             json=sample_email.dict()
         )
         assert response.status_code == 500

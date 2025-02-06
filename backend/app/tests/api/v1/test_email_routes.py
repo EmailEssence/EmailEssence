@@ -3,6 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from unittest.mock import patch
+from app.tests.api.v1.constants import EMAIL_ENDPOINT
 from app.tests.constants import sample_email
 
 
@@ -18,7 +19,7 @@ async def test_retrieve_emails_success(
     mock_fetch_emails.return_value = sample_email
 
     # Act
-    response = test_client.get("/emails")
+    response = test_client.get(EMAIL_ENDPOINT)
 
     # Assert
     assert response.status_code == 200
@@ -49,7 +50,7 @@ async def test_retrieve_emails_empty(
     mock_fetch_emails.return_value = []
 
     # Act
-    response = test_client.get("/emails")
+    response = test_client.get(EMAIL_ENDPOINT)
 
     # Assert
     assert response.status_code == 200
@@ -67,7 +68,7 @@ async def test_retrieve_emails_service_error(
     mock_fetch_emails.side_effect = Exception("IMAP connection failed")
 
     # Act
-    response = test_client.get("/emails")
+    response = test_client.get(EMAIL_ENDPOINT)
 
     # Assert
     assert response.status_code == 500
