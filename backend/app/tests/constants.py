@@ -1,17 +1,12 @@
-# tests/api/v1/constants.py
+# tests/constants.py
 import pytest
 from datetime import datetime, timezone
 
 from app.models import EmailSchema, SummarySchema
 
 """
-Test constants for API v1 testing
+Test constants fixtures
 """
-
-EMAIL_ENDPOINT = "/emails"
-SUMMARY_ENDPOINT = "/summaries"
-AUTH_ENDPOINT = "/auth"
-USER_ENDPOINT = "/user"
 
 # Test data fixtures
 @pytest.fixture
