@@ -1,5 +1,5 @@
 from .types import ProcessingStrategy
-from .providers.openai import OpenAIEmailSummarizer
+from app.services.summarization.providers.openai.openai import OpenAIEmailSummarizer
 # Future provider imports as needed
 # from .providers.deepseek import DeepSeekEmailSummarizer
 

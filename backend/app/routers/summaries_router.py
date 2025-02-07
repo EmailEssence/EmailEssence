@@ -28,6 +28,7 @@ async def get_summarizer(
                 )
             return OpenAIEmailSummarizer(
                 api_key=settings.openai_api_key,
+                prompt_version=settings.summarizer_prompt_version,
                 model=settings.summarizer_model,
                 batch_threshold=settings.summarizer_batch_threshold
             )

@@ -8,6 +8,19 @@ class SummarizerProvider(str, Enum):
     ANTHROPIC = "anthropic"
     LOCAL = "local"
 
+    @classmethod
+    def default(cls) -> "SummarizerProvider":
+        return cls.OPENAI
+
+class PromptVersion(str, Enum):
+    V1 = "v1"
+    V2 = "v2"
+    # Add new versions as needed
+
+    @classmethod
+    def latest(cls) -> "PromptVersion":
+        return cls.V1
+
 class Settings(BaseSettings):
     # Google OAuth
     google_client_id: str
@@ -25,11 +38,13 @@ class Settings(BaseSettings):
     # AI Providers
     openai_api_key: str
     deepseek_api_key: str | None = None
+    gemini_api_key: str | None = None
     
     # Summarizer settings
-    summarizer_provider: SummarizerProvider = SummarizerProvider.OPENAI
-    summarizer_model: str = "gpt-4o-mini"
+    summarizer_provider: SummarizerProvider = SummarizerProvider.default()
+    summarizer_model: str = "gpt-4o-mini" # TODO enum that maps providers to models
     summarizer_batch_threshold: int = 10
+    summarizer_prompt_version: PromptVersion = PromptVersion.latest()
     
     class Config:
         env_file = ".env"
