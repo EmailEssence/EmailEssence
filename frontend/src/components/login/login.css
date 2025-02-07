@@ -5,8 +5,8 @@
   align-items: center;
 }
 .loginDiv {
-  height: 60%;
-  width: 40%;
+  height: clamp(300px, 40%, 300px);
+  width: clamp(250px, 30%, 250px);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
