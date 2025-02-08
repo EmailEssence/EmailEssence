@@ -1,40 +1,62 @@
+from datetime import datetime
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
-from app.services import email_service
-from app.models import EmailSchema
-from app.tests.constants import sample_email
+from app.services.email_service import clean_body, parse_email_message
 
 """
 Tests for clean_body(str) : Pure function
 """
 
-def test_clean_body_empty():
-    assert email_service.clean_body("") == ""
+# Test clean_body
+def test_clean_body():
+    """Test email body cleaning functionality"""
+    test_cases = [
+        ( # image tags 
+            "[image:logo.png]\nHello\n\nWorld\n[image:another.png]",
+            "Hello\nWorld"
+        ),
+        ( # no clean
+            "Simple text",
+            "Simple text"
+        ),
+        ( # newLines
+            "\r\n\r\nMultiple\r\nNewlines\r\n\r\n",
+            "Multiple\nNewlines"
+        ),
+        ( # white space
+            "   Leading and trailing whitespace   "
+            "Leading and trailing whitespace"
+        )
+        ( # empty
+            "",
+            ""
+        ),
+        ( # broad
+            "[image:test.gif]  Line1\r\n\nLine2   [image:x] ",
+            " Line1\nLine2 "
+        )
 
-def test_clean_body_image_tags():
-    body = "[image:some_image.jpg] This is some text [image:another.png]"
-    expected = " This is some text "
-    assert email_service.clean_body(body) == expected
+    ]
+    
+    for input_text, expected in test_cases:
+        assert clean_body(input_text) == expected
 
-def test_clean_body_newlines():
-    body = "Line 1\r\nLine 2\nLine 3\rLine 4\n\n\nLine 5"
-    expected = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5"
-    assert email_service.clean_body(body) == expected
-
-def test_clean_body_whitespace():
-    body = "   Leading and trailing whitespace   "
-    expected = "Leading and trailing whitespace"
-    assert email_service.clean_body(body) == expected
-
-def test_clean_body_combined():
-    body = "[image:test.gif]  Line1\r\n\nLine2   [image:x] "
-    expected = " Line1\nLine2 "
-    assert email_service.clean_body(body) == expected
+# Test parse_email_message
+def test_parse_email_message(mock_email_message):
+    """Test email message parsing"""
+    uid = 12345
+    raw_body = "Test email body"
+    
+    result = parse_email_message(uid, mock_email_message, raw_body)
+    
+    assert result["email_id"] == str(uid)
+    assert result["subject"] == "Test Subject"
+    assert result["sender"] == "sender@example.com"
+    assert len(result["recipients"]) == 2
+    assert "recipient1@example.com" in result["recipients"]
+    assert result["body"] == "Test email body"
+    assert isinstance(result["received_at"], datetime)
+    assert result["category"] == "uncategorized"
+    assert result["is_read"] is False
 
 # TODO consider more edge cases / weird formatting
-
-"""
-
-"""
-

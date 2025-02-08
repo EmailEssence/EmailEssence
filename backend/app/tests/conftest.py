@@ -1,5 +1,6 @@
 # tests/conftest.py
 import os
+from httpx import patch
 import pytest
 from pathlib import Path
 from dotenv import load_dotenv
