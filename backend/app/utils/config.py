@@ -66,6 +66,7 @@ class Settings(BaseSettings):
     openai_api_key: str
     google_api_key: str | None = None
     deepseek_api_key: str | None = None
+    gemini_api_key: str | None = None
     
     # Summarizer settings
     summarizer_provider: SummarizerProvider = SummarizerProvider.default()
