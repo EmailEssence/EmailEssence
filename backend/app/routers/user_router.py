@@ -1,32 +1,23 @@
-from fastapi import APIRouter, HTTPException
-from app.services.user_service import get_user_by_token, update_user_preferences, list_users
+from fastapi import APIRouter
+from app.services.user_service import get_or_create_user, update_user_preferences, list_users
 
 # FastAPI router
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(tags=["Users"])
 
-# Get Current User (Using Google OAuth Token)
+# Get Current User
 @router.get("/me")
-async def get_current_user(token: str):
-    """Retrieve user details using stored OAuth token"""
-    try:
-        return await get_user_by_token(token)
-    except HTTPException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
+async def get_current_user():
+    """Retrieve user details or create user if they don’t exist"""
+    return await get_or_create_user()
 
 # Update User Preferences
 @router.put("/preferences")
-async def update_preferences(token: str, preferences: dict):
+async def update_preferences(preferences: dict):
     """Allows users to update their preferences"""
-    try:
-        return await update_user_preferences(token, preferences)
-    except HTTPException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    return await update_user_preferences(preferences)
 
-# List All Users (Optional, Admin Use)
+# List All Users (Debug Purposes)
 @router.get("/list")
 async def list_all_users():
-    """List all users (For admin use, can be restricted later)"""
-    try:
-        return await list_users()
-    except HTTPException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    """List all users"""
+    return await list_users()

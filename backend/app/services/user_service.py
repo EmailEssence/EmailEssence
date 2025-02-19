@@ -1,24 +1,15 @@
-import os
-import pickle
 import httpx
 from fastapi import HTTPException
+from app.services.auth_service import get_credentials
 from database import db  # MongoDB connection
 
-# Load Google OAuth Token from Pickle
-async def load_oauth_token(token: str):
-    """Loads OAuth token from stored Pickle file"""
-    token_path = f"tokens/{token}.pickle"
-    if not os.path.exists(token_path):
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+# Fetch User Info from Google Using OAuth Token
+async def get_google_user_info():
+    """Fetches user info from Google using the stored OAuth token."""
     
-    with open(token_path, "rb") as token_file:
-        credentials = pickle.load(token_file)
-    
-    return credentials
+    credentials = get_credentials()  # Use the stored token from Pickle
+    access_token = credentials.token
 
-# Fetch User Info from Google
-async def get_google_user_info(access_token: str):
-    """Fetches user info from Google using OAuth token"""
     headers = {"Authorization": f"Bearer {access_token}"}
     
     async with httpx.AsyncClient() as client:
@@ -29,36 +20,34 @@ async def get_google_user_info(access_token: str):
 
     return response.json()
 
-#  Get User from MongoDB
-async def get_user_by_token(token: str):
-    """Retrieves user details from MongoDB using OAuth token"""
-    
-    # Load stored OAuth token
-    credentials = await load_oauth_token(token)
+# Get or Create User in MongoDB
+async def get_or_create_user():
+    """Retrieves user from MongoDB or creates a new user if they don't exist."""
 
-    # Fetch user info from Google
-    user_info = await get_google_user_info(credentials.token)
+    user_info = await get_google_user_info()
+    email = user_info["email"]
 
-    # Check if user exists in database
-    user = await db.users.find_one({"email": user_info["email"]})
+    #  Check if user exists in database
+    user = await db.users.find_one({"email": email})
+
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        # Insert new user into MongoDB
+        new_user = {
+            "email": email,
+            "name": user_info["name"],
+            "preferences": {"summary_length": "short", "theme": "light", "fetch_frequency": "30m"},
+            "oauth": {}  # You may store OAuth details here if needed
+        }
+        await db.users.insert_one(new_user)
+        return new_user
 
-    return {
-        "email": user["email"],
-        "name": user["name"],
-        "preferences": user.get("preferences", {})
-    }
+    return user
 
 # Update User Preferences
-async def update_user_preferences(token: str, preferences: dict):
+async def update_user_preferences(preferences: dict):
     """Updates user preferences in MongoDB"""
     
-    # Load stored OAuth token
-    credentials = await load_oauth_token(token)
-
-    # Fetch user info from Google
-    user_info = await get_google_user_info(credentials.token)
+    user_info = await get_google_user_info()
     email = user_info["email"]
 
     # Update preferences in MongoDB
@@ -66,7 +55,7 @@ async def update_user_preferences(token: str, preferences: dict):
     
     return {"message": "Preferences updated successfully"}
 
-# List All Users (Display Purposes)
+# List All Users (For Debugging Purposes)
 async def list_users():
     """Retrieves a list of all registered users"""
     users = await db.users.find().to_list(100)

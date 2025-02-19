@@ -9,7 +9,7 @@ from app.models import EmailSchema, SummarySchema, UserSchema
 from database import db  
 
 
-# from app.models.user_model import User
+from app.models.user_model import UserSchema
 
 app = FastAPI(
     title="Email Essence",
