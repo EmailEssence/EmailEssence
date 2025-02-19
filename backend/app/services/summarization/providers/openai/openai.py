@@ -18,6 +18,7 @@ from tenacity import (
 from app.services.summarization.base import AdaptiveSummarizer
 from app.services.summarization.types import ModelBackend, ModelConfig
 from app.models import EmailSchema, SummarySchema
+from app.utils.config import ProviderModel, SummarizerProvider
 from app.services.summarization.prompts import PromptManager
 from .prompts import OpenAIPromptManager
 from app.utils.config import PromptVersion
@@ -31,9 +32,9 @@ class OpenAIBackend(ModelBackend):
         self,
         api_key: str,
         prompt_manager: PromptManager,
-        model: str = "gpt-4o-mini",
+        model: str = ProviderModel.default_for_provider(SummarizerProvider.OPENAI),
         temperature: float = 0.3,
-        max_tokens: int = 150
+        max_tokens: int = 150,
     ):
         self.client = AsyncOpenAI(api_key=api_key)
         self.prompt_manager = prompt_manager
@@ -104,23 +105,30 @@ class OpenAIBackend(ModelBackend):
             *[_process_with_semaphore(content) for content in contents]
         )
 
+    @property
+    def model_info(self) -> Dict[str, str]:
+        return {
+            "provider": "OpenAI",
+            "model": self.model
+        }
+
 class OpenAIEmailSummarizer(AdaptiveSummarizer[EmailSchema]):
     """Email summarizer implementation using OpenAI's API."""
     
     def __init__(
         self,
         api_key: str,
-        model: str = "gpt-4o-mini", # Redundant
+        model: str = "gpt-4o-mini",
         batch_threshold: int = 10,
         max_batch_size: int = 50,
         timeout: float = 30.0,
-        prompt_version: PromptVersion = PromptVersion.latest()
+        prompt_version: PromptVersion = PromptVersion.latest(),
     ):
         prompt_manager = OpenAIPromptManager(prompt_version=prompt_version)
         backend = OpenAIBackend(
             api_key=api_key,
             prompt_manager=prompt_manager,
-            model=model
+            model=model,
         )
         super().__init__(
             model_backend=backend,

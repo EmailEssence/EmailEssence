@@ -64,8 +64,20 @@ class AdaptiveSummarizer(ABC, Generic[T]):
         summary_text: str,
         keywords: List[str]
     ) -> SummarySchema:
-        """Create a SummarySchema instance from processing results"""
-        raise NotImplementedError
+        """Create a SummarySchema from processing results."""
+        
+        model_info = self._backend.model_info if hasattr(self._backend, 'model_info') else {
+            "provider": "Unknown",
+            "model": "Unknown"
+        }
+        
+        return SummarySchema(
+            email_id=email_id,
+            summary_text=summary_text,
+            keywords=keywords,
+            generated_at=datetime.now(timezone.utc),
+            model_info=model_info  # Make sure this is always passed
+        )
 
     async def process_single(self, email: T) -> SummarySchema:
         """Process a single item through the model pipeline"""
